@@ -227,8 +227,6 @@ Las pruebas se documentan en [EVIDENCIAS.md](./EVIDENCIAS.md) e incluyen:
 
 Además, las 7 tools fueron probadas individualmente con **13/13 pruebas exitosas**.
 
-Para instrucciones detalladas de cómo ejecutar las pruebas desde GitHub Copilot en modo Agent, consulta [GUIA_PRUEBAS_COPILOT.md](./GUIA_PRUEBAS_COPILOT.md).
-
 ---
 
 *Laboratorio "MCP Local GitHub" — Desarrollo de Software IX.*
