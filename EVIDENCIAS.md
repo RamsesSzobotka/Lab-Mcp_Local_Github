@@ -2,7 +2,7 @@
 
 > **Proyecto**: Lab-Mcp_Local_Github
 > **Fecha de pruebas**: 24 de junio de 2026
-> **Cliente MCP**: OpenCode (conexión directa vía MCP)
+> **Cliente MCP**: GitHub Copilot (modo Agent) en VS Code
 > **Servidor**: `server.py` — FastMCP sobre stdio
 
 ---
@@ -10,11 +10,12 @@
 ## Índice
 
 1. [Diagramas de arquitectura](#1-diagramas-de-arquitectura)
-2. [Convenciones](#2-convenciones)
-3. [A. Tools Base (3 tools)](#a-tools-base-3-tools)
-4. [B. Tools de Reto (4 tools)](#b-tools-de-reto-4-tools)
-5. [C. Resumen de resultados](#c-resumen-de-resultados)
-6. [D. Plan de Pruebas del PRD](#d-plan-de-pruebas-del-prd-sección-7)
+2. [Capturas de verificación y pruebas](#2-capturas-de-verificación-y-pruebas)
+3. [Tools Base (3 tools)](#3-tools-base-3-tools)
+4. [Tools de Reto (4 tools)](#4-tools-de-reto-4-tools)
+5. [Resumen de resultados](#5-resumen-de-resultados)
+6. [Plan de Pruebas del PRD](#6-plan-de-pruebas-del-prd-sección-7)
+7. [Checklist de finalización](#7-checklist-de-finalización)
 
 ---
 
@@ -59,7 +60,7 @@ graph TB
     G -->|"lectura"| K
 ```
 
-**Descripción**: VS Code (o cualquier cliente MCP) inicia el servidor `server.py` a través del transporte stdio. El servidor FastMCP registra 7 tools. Cuando el cliente invoca una tool, el servidor la ejecuta y devuelve el resultado. Las tools que requieren datos (`buscar_cliente`) leen del archivo `data_prueba.json`.
+**Descripción**: VS Code inicia el servidor `server.py` a través del transporte stdio. FastMCP registra 7 tools. El cliente invoca las tools y el servidor devuelve resultados. Las tools que requieren datos (`buscar_cliente`) leen de `data_prueba.json`.
 
 ---
 
@@ -68,7 +69,7 @@ graph TB
 ```mermaid
 sequenceDiagram
     actor Usuario
-    participant Cliente as Cliente MCP<br/>(OpenCode / Copilot)
+    participant Cliente as Cliente MCP<br/>(Copilot Agent)
     participant Servidor as Servidor MCP<br/>(server.py)
     participant Tool as Tool específica
     participant Archivo as data_prueba.json
@@ -94,8 +95,6 @@ sequenceDiagram
     Cliente-->>Usuario: "El cliente es Juan Perez"
 ```
 
-**Descripción**: El cliente MCP descubre las tools disponibles mediante `list_tools()`. Luego invoca una tool específica con `call_tool()`, pasando los argumentos. El servidor ejecuta la función correspondiente y devuelve el resultado estructurado. El cliente presenta la respuesta al usuario en lenguaje natural.
-
 ---
 
 ### 1.3 Estructura del proyecto
@@ -110,24 +109,57 @@ graph LR
     A --> E["📄 PRD.md<br/>Requerimientos"]
     A --> F["📄 README.md<br/>Instrucciones"]
     A --> G["📄 EVIDENCIAS.md<br/>Este documento"]
+    A --> H["📄 GUIA_PRUEBAS_COPILOT.md<br/>Guía de pruebas"]
+    A --> I["📁 capturas/<br/>4 screenshots"]
 ```
 
 ---
 
-## 2. Convenciones
+## 2. Capturas de verificación y pruebas
 
-Cada evidencia documenta:
-- **Tool**: nombre de la tool invocada
-- **Prompt/Input**: argumentos enviados
-- **Resultado**: respuesta del servidor
-- **Estado**: ✅ Pass / ❌ Fail
-- **📸 Captura**: espacio reservado para screenshot de la ejecución
+> Todas las capturas fueron tomadas desde GitHub Copilot en modo Agent dentro de VS Code.
+> Las imágenes se encuentran en la carpeta [`capturas/`](./capturas).
+
+### 2.1 Verificación: Servidor MCP listado en VS Code
+
+![MCP: List Servers](./capturas/evidencia-00-list-servers.png)
+
+El servidor `lab-mcp-local` aparece correctamente en `MCP: List Servers` de VS Code, confirmando que la configuración en `.vscode/mcp.json` es correcta y que el servidor se comunica por stdio sin errores.
 
 ---
 
-## A. Tools Base (3 tools)
+### 2.2 Prueba A — `sumar(15, 27)` desde Copilot Agent
 
-### A.1 `saludar`
+![Prueba A: sumar](./capturas/evidencia-01-prueba-a-sumar.png)
+
+**Prompt**: "Usando el MCP server local, suma 15 y 27."
+**Resultado**: `42` ✅
+
+Copilot descubre la tool `sumar`, la invoca con los parámetros correctos y devuelve el resultado.
+
+---
+
+### 2.3 Prueba B — `contar_palabras` desde Copilot Agent
+
+![Prueba B: contar_palabras](./capturas/evidencia-02-prueba-b-contar-palabras.png)
+
+**Prompt**: "Usando el MCP server local, cuenta las palabras del siguiente texto: 'Hola mundo, este es un laboratorio de MCP.'"
+**Resultado**: `8` ✅
+
+---
+
+### 2.4 Prueba C — `buscar_cliente(ID 1)` desde Copilot Agent
+
+![Prueba C: buscar_cliente](./capturas/evidencia-03-prueba-c-buscar-cliente.png)
+
+**Prompt**: "Usando el MCP server local, busca el cliente con ID 1 en el archivo de datos."
+**Resultado**: Nombre: Juan Perez, Email: juan@example.com ✅
+
+---
+
+## 3. Tools Base (3 tools)
+
+### 3.1 `saludar`
 
 **Tool**: `saludar(nombre: str) -> str`
 
@@ -140,18 +172,9 @@ Prompt:  saludar("Estudiante")
 Output:  ¡Hola, Estudiante!
 ```
 
-> 📸 **Captura A.1** — (*Insertar aquí screenshot de la invocación de `saludar` desde el cliente MCP, mostrando el prompt y el resultado*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Tool visible en la lista de herramientas
->      - Prompt ingresado
->      - Respuesta obtenida
-> ```
-
 ---
 
-### A.2 `sumar`
+### 3.2 `sumar`
 
 **Tool**: `sumar(a: int, b: int) -> int`
 
@@ -168,17 +191,9 @@ Prompt:  sumar(42, 58)
 Output:  100
 ```
 
-> 📸 **Captura A.2** — (*Insertar aquí screenshot de `sumar(15, 27)`, mostrando el resultado 42*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación de sumar(15, 27)
->      - Resultado: 42
-> ```
-
 ---
 
-### A.3 `contar_palabras`
+### 3.3 `contar_palabras`
 
 **Tool**: `contar_palabras(texto: str) -> int`
 
@@ -191,19 +206,11 @@ Prompt:  contar_palabras("Hola mundo, este es un laboratorio de MCP.")
 Output:  8
 ```
 
-> 📸 **Captura A.3** — (*Insertar aquí screenshot de `contar_palabras` mostrando el texto de entrada y el resultado 8*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación de contar_palabras
->      - Resultado: 8
-> ```
-
 ---
 
-## B. Tools de Reto (4 tools)
+## 4. Tools de Reto (4 tools)
 
-### B.1 `buscar_cliente`
+### 4.1 `buscar_cliente`
 
 **Tool**: `buscar_cliente(id: int) -> dict`
 
@@ -224,25 +231,9 @@ Prompt:  buscar_cliente(99)
 Output:  {"error": "Cliente con id 99 no encontrado"}
 ```
 
-> 📸 **Captura B.1a** — (*Insertar aquí screenshot de `buscar_cliente(1)` mostrando los datos de Juan Perez*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación: buscar_cliente(1)
->      - Resultado: nombre y email del cliente
-> ```
->
-> 📸 **Captura B.1b** — (*Insertar aquí screenshot del edge case `buscar_cliente(99)` mostrando el mensaje de error*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación: buscar_cliente(99)
->      - Resultado: mensaje de error "no encontrado"
-> ```
-
 ---
 
-### B.2 `calcular_promedio`
+### 4.2 `calcular_promedio`
 
 **Tool**: `calcular_promedio(calificaciones: list[float]) -> float`
 
@@ -256,17 +247,9 @@ Prompt:  calcular_promedio([85, 90, 78, 92, 88])
 Output:  86.6
 ```
 
-> 📸 **Captura B.2** — (*Insertar aquí screenshot de `calcular_promedio` con las 5 calificaciones y resultado 86.6*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación: calcular_promedio([85, 90, 78, 92, 88])
->      - Resultado: 86.6
-> ```
-
 ---
 
-### B.3 `analizar_texto`
+### 4.3 `analizar_texto`
 
 **Tool**: `analizar_texto(texto: str) -> dict`
 
@@ -282,17 +265,9 @@ Prompt:  analizar_texto("Hola mundo, este es un laboratorio de MCP.")
 Output:  {"caracteres": 42, "palabras": 8, "vocales": 15}
 ```
 
-> 📸 **Captura B.3** — (*Insertar aquí screenshot de `analizar_texto` mostrando el análisis completo*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación: analizar_texto(...)
->      - Resultado: caracteres, palabras, vocales
-> ```
-
 ---
 
-### B.4 `generar_resumen`
+### 4.4 `generar_resumen`
 
 **Tool**: `generar_resumen(texto: str, n_oraciones: int = 2) -> str`
 
@@ -312,17 +287,9 @@ Output:  "El laboratorio de MCP consiste en crear un servidor
           prácticos."
 ```
 
-> 📸 **Captura B.4** — (*Insertar aquí screenshot de `generar_resumen` mostrando el texto original y el resumen generado*)
->
-> ```
-> [   ] Espacio reservado para imagen:
->      - Invocación: generar_resumen(texto, 2)
->      - Resultado: primeras 2 oraciones
-> ```
-
 ---
 
-## C. Resumen de resultados
+## 5. Resumen de resultados
 
 | # | Tool | Tipo | Pruebas | Pass | Fail |
 |---|------|------|---------|------|------|
@@ -339,7 +306,7 @@ Output:  "El laboratorio de MCP consiste en crear un servidor
 
 ---
 
-## D. Plan de Pruebas del PRD (Sección 7)
+## 6. Plan de Pruebas del PRD (Sección 7)
 
 ### Prueba A — `sumar(15, 27)`
 
@@ -349,8 +316,7 @@ Output:  "El laboratorio de MCP consiste en crear un servidor
 | Esperado | `42` |
 | Obtenido | `42` |
 | Estado | ✅ Pass |
-
-> 📸 **Captura Prueba A** — (*Insertar aquí screenshot de la Prueba A ejecutada desde el cliente MCP*)
+| Captura | [Ver captura](./capturas/evidencia-01-prueba-a-sumar.png) |
 
 ### Prueba B — `contar_palabras`
 
@@ -360,8 +326,7 @@ Output:  "El laboratorio de MCP consiste en crear un servidor
 | Esperado | `8` |
 | Obtenido | `8` |
 | Estado | ✅ Pass |
-
-> 📸 **Captura Prueba B** — (*Insertar aquí screenshot de la Prueba B ejecutada desde el cliente MCP*)
+| Captura | [Ver captura](./capturas/evidencia-02-prueba-b-contar-palabras.png) |
 
 ### Prueba C — `buscar_cliente(ID 1)`
 
@@ -371,26 +336,30 @@ Output:  "El laboratorio de MCP consiste en crear un servidor
 | Esperado | Nombre y email del cliente ID 1 |
 | Obtenido | `{"nombre": "Juan Perez", "email": "juan@example.com"}` |
 | Estado | ✅ Pass |
-
-> 📸 **Captura Prueba C** — (*Insertar aquí screenshot de la Prueba C ejecutada desde el cliente MCP*)
+| Captura | [Ver captura](./capturas/evidencia-03-prueba-c-buscar-cliente.png) |
 
 ---
 
-## E. Checklist de finalización del laboratorio
+## 7. Checklist de finalización
 
 | # | Ítem | Estado | Evidencia |
 |---|------|--------|-----------|
-| 1 | `server.py` con 7 tools | ✅ | Código en repo |
-| 2 | `.vscode/mcp.json` configurado | ✅ | Archivo en `.vscode/` |
-| 3 | `data_prueba.json` con datos | ✅ | Archivo en repo |
-| 4 | `README.md` con instrucciones | ✅ | Archivo en repo |
-| 5 | Tools base funcionando (3/3) | ✅ | Secciones A.1–A.3 |
-| 6 | Tools reto funcionando (4/4) | ✅ | Secciones B.1–B.4 |
-| 7 | Prueba A: sumar(15,27)=42 | ✅ | Sección D |
-| 8 | Prueba B: contar_palabras=8 | ✅ | Sección D |
-| 9 | Prueba C: buscar_cliente(1) | ✅ | Sección D |
-| 10 | Capturas de pantalla insertadas | ⬜ | Tú las agregas |
-| 11 | Servidor listado en MCP: List Servers | ⬜ | Verificar en VS Code |
+| 1 | `server.py` con 7 tools implementadas | ✅ | Código en repo |
+| 2 | `.vscode/mcp.json` configurado (stdio, python, args, cwd) | ✅ | Archivo en `.vscode/` |
+| 3 | `data_prueba.json` con 3 clientes de prueba | ✅ | Archivo en repo |
+| 4 | `README.md` con instrucciones del laboratorio | ✅ | Archivo en repo |
+| 5 | `GUIA_PRUEBAS_COPILOT.md` con pasos para las pruebas | ✅ | Archivo en repo |
+| 6 | Tools base funcionando: `saludar`, `sumar`, `contar_palabras` | ✅ | Sección 3 |
+| 7 | Tools reto funcionando: `buscar_cliente`, `calcular_promedio`, `analizar_texto`, `generar_resumen` | ✅ | Sección 4 |
+| 8 | 13/13 pruebas unitarias pasadas | ✅ | Sección 5 |
+| 9 | **Prueba A** — `sumar(15, 27) = 42` desde Copilot Agent | ✅ | Captura 2.2 |
+| 10 | **Prueba B** — `contar_palabras = 8` desde Copilot Agent | ✅ | Captura 2.3 |
+| 11 | **Prueba C** — `buscar_cliente(1)` desde Copilot Agent | ✅ | Captura 2.4 |
+| 12 | Servidor listado en `MCP: List Servers` | ✅ | Captura 2.1 |
+| 13 | Capturas de pantalla incluidas en el repo | ✅ | Carpeta `capturas/` |
+| 14 | Diagramas de arquitectura documentados | ✅ | Sección 1 |
+
+**Estado final**: ✅ **Laboratorio completo** — todos los ítems del PRD han sido implementados, probados y documentados.
 
 ---
 
