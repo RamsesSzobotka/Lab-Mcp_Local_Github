@@ -70,7 +70,7 @@ Ubicación: `.vscode/mcp.json` (en la raíz del proyecto)
       "type": "stdio",
       "command": "python",
       "args": ["server.py"],
-      "cwd": "C:\\Users\\ramse\\Documents\\Universidad\\Des_Software IX\\Lab-Mcp_Local_Github"
+      "cwd": "${workspaceFolder}"
     }
   }
 }
