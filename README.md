@@ -29,8 +29,13 @@ qaLabMcp/
 │   ├── evidencia-00-list-servers.png
 │   ├── evidencia-0A.png
 │   ├── evidencia-0B.png
-│   └── evidencia-0C.png
-├── server.py                       # Servidor MCP con FastMCP (3 tools)
+│   ├── evidencia-0C.png
+│   ├── Evidencia-RetoA.png
+│   ├── Evidencia-RetoB.png
+│   ├── Evidencia-RetoC.png
+│   └── Evidencia-RetoD.png
+├── datos_prueba.json               # Datos de prueba para buscar_cliente
+├── server.py                       # Servidor MCP con FastMCP (7 tools)
 ├── PRD.md                          # Documento de requerimientos
 ├── EVIDENCIAS.md                   # Resultados de pruebas y capturas
 └── README.md                       # Este archivo
@@ -40,11 +45,15 @@ qaLabMcp/
 
 ## Tools disponibles
 
-| Tool                      | Descripción                                               | Parámetros                                      |
-|---------------------------|-----------------------------------------------------------|-------------------------------------------------|
-| `validar_cliente`         | Valida y normaliza CIP, teléfono y email                  | `cip`, `telefono`, `email`                      |
-| `generar_caso_prueba`     | Genera un caso de prueba funcional                        | `endpoint`, `metodo`, `escenario`               |
-| `calcular_percentil_simple` | Calcula un percentil simple                             | `valores`, `percentil`                          |
+| #  | Tool                      | Tipo  | Descripción                               | Parámetros                                      |
+|----|---------------------------|-------|-------------------------------------------|-------------------------------------------------|
+| 1  | `validar_cliente`         | Base  | Valida y normaliza CIP, teléfono y email  | `cip`, `telefono`, `email`                      |
+| 2  | `generar_caso_prueba`     | Base  | Genera un caso de prueba funcional        | `endpoint`, `metodo`, `escenario`               |
+| 3  | `calcular_percentil_simple` | Base | Calcula un percentil simple              | `valores`, `percentil`                          |
+| 4  | `clasificar_error_http`   | Reto  | Clasifica código HTTP en categoría        | `status_code`                                   |
+| 5  | `evaluar_sla`             | Reto  | Evalúa cumplimiento de SLA                | `p95_ms`, `limite_ms`                           |
+| 6  | `validar_respuesta_api`   | Reto  | Valida respuesta API contra criterios     | `status_code`, `tiempo_ms`, `limite_ms`, `tiene_token` |
+| 7  | `buscar_cliente`          | Reto  | Busca cliente por CIP en JSON             | `cip`                                           |
 
 ---
 
@@ -83,39 +92,22 @@ Ubicación: `.vscode/mcp.json` (en la raíz del proyecto)
 
 Una vez que el servidor esté activo, abre GitHub Copilot Chat, cambia a modo **Agent** y ejecuta estos prompts **exactos**:
 
-### Prueba A — `validar_cliente`
+### Tools Base
 
-**Prompt**:
-> Usando el MCP server qaLabMcp, valida el cliente con CIP 12345, teléfono 6677-8899, correo prueba@demo.com.
+| Prueba | Prompt | Esperado |
+|--------|--------|----------|
+| **A** — `validar_cliente` | "Usando el MCP server qaLabMcp, valida el cliente con CIP 12345, teléfono 6677-8899, correo prueba@demo.com." | `{"valido": true, "cip": "12345", ...}` |
+| **B** — `generar_caso_prueba` | "Usando el MCP server qaLabMcp, genera un caso de prueba para POST /api/login con credenciales inválidas." | Caso estructurado con ID, pasos y criterio |
+| **C** — `calcular_percentil_simple` | "Usando el MCP server qaLabMcp, calcula el percentil 95 de [120, 130, 150, 300, 90, 100, 500, 220]." | `318.0` |
 
-**Resultado esperado**:
-```json
-{"valido": true, "cip": "12345", "telefono": "66778899", "email": "prueba@demo.com"}
-```
+### Retos
 
-**Captura sugerida**: `capturas/evidencia-0A.png`
-
----
-
-### Prueba B — `generar_caso_prueba`
-
-**Prompt**:
-> Usando el MCP server qaLabMcp, genera un caso de prueba para POST /api/login con credenciales inválidas.
-
-**Resultado esperado**: Caso de prueba estructurado con ID, 5 pasos y criterio de aceptación.
-
-**Captura sugerida**: `capturas/evidencia-0B.png`
-
----
-
-### Prueba C — `calcular_percentil_simple`
-
-**Prompt**:
-> Usando el MCP server qaLabMcp, calcula el percentil 95 de [120, 130, 150, 300, 90, 100, 500, 220].
-
-**Resultado esperado**: `318.0`
-
-**Captura sugerida**: `capturas/evidencia-0C.png`
+| Reto  | Prompt | Esperado |
+|-------|--------|----------|
+| **A** — `clasificar_error_http` | "Usando el MCP server qaLabMcp, clasifica el código HTTP 500." | `"Error del servidor"` |
+| **B** — `evaluar_sla` | "Usando el MCP server qaLabMcp, evalúa el SLA con p95=480ms y límite=500ms." | `{"cumple": true, "diferencia_ms": 20}` |
+| **C** — `validar_respuesta_api` | "Usando el MCP server qaLabMcp, valida la respuesta API con status 200, tiempo 350ms, límite 500ms y token true." | `{"valido": true, "razon": "..."}` |
+| **D** — `buscar_cliente` | "Usando el MCP server qaLabMcp, busca el cliente con CIP CIP001 en datos_prueba.json." | `{"cip": "CIP001", "nombre": "Juan Perez", ...}` |
 
 ---
 
@@ -123,10 +115,14 @@ Una vez que el servidor esté activo, abre GitHub Copilot Chat, cambia a modo **
 
 | #  | Qué capturar                                      | Prompt exacto | Archivo |
 |----|---------------------------------------------------|---------------|---------|
-| 00 | `MCP: List Servers` mostrando `qaLabMcp` activo   | — |
-| 01 | Copilot Agent respondiendo `validar_cliente`      | "Usando el MCP server qaLabMcp, valida el cliente con CIP 12345, teléfono 6677-8899, correo prueba@demo.com." | `evidencia-0A.png` |
-| 02 | Copilot Agent respondiendo `generar_caso_prueba`  | "Usando el MCP server qaLabMcp, genera un caso de prueba para POST /api/login con credenciales inválidas." | `evidencia-0B.png` |
-| 03 | Copilot Agent respondiendo `calcular_percentil_simple` | "Usando el MCP server qaLabMcp, calcula el percentil 95 de [120, 130, 150, 300, 90, 100, 500, 220]." | `evidencia-0C.png` |
+| 00 | `MCP: List Servers` mostrando `qaLabMcp` activo   | — | `evidencia-00-list-servers.png` |
+| 01 | `validar_cliente`      | "Usando el MCP server qaLabMcp, valida el cliente con CIP 12345, teléfono 6677-8899, correo prueba@demo.com." | `evidencia-0A.png` |
+| 02 | `generar_caso_prueba`  | "Usando el MCP server qaLabMcp, genera un caso de prueba para POST /api/login con credenciales inválidas." | `evidencia-0B.png` |
+| 03 | `calcular_percentil_simple` | "Usando el MCP server qaLabMcp, calcula el percentil 95 de [120, 130, 150, 300, 90, 100, 500, 220]." | `evidencia-0C.png` |
+| 04 | `clasificar_error_http(500)` | "Usando el MCP server qaLabMcp, clasifica el código HTTP 500." | `Evidencia-RetoA.png` |
+| 05 | `evaluar_sla(480, 500)` | "Usando el MCP server qaLabMcp, evalúa el SLA con p95=480ms y límite=500ms." | `Evidencia-RetoB.png` |
+| 06 | `validar_respuesta_api(200, 350, 500, true)` | "Usando el MCP server qaLabMcp, valida la respuesta API con status 200, tiempo 350ms, límite 500ms y token true." | `Evidencia-RetoC.png` |
+| 07 | `buscar_cliente("CIP001")` | "Usando el MCP server qaLabMcp, busca el cliente con CIP CIP001 en datos_prueba.json." | `Evidencia-RetoD.png` |
 
 ---
 

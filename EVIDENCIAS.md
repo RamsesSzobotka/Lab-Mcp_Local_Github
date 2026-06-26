@@ -3,7 +3,7 @@
 > **Proyecto**: Lab-Mcp_Local_Github
 > **Servidor**: `server.py` — FastMCP("qaLabMcp") sobre stdio
 > **Cliente MCP**: GitHub Copilot (modo Agent) en VS Code
-> **Tools**: 3 tools base — `validar_cliente`, `generar_caso_prueba`, `calcular_percentil_simple`
+> **Tools**: 3 tools base + 4 retos — `validar_cliente`, `generar_caso_prueba`, `calcular_percentil_simple`, `clasificar_error_http`, `evaluar_sla`, `validar_respuesta_api`, `buscar_cliente`
 
 ---
 
@@ -14,17 +14,26 @@
 3. [Prueba A — `validar_cliente`](#3-prueba-a--validar_cliente)
 4. [Prueba B — `generar_caso_prueba`](#4-prueba-b--generar_caso_prueba)
 5. [Prueba C — `calcular_percentil_simple`](#5-prueba-c--calcular_percentil_simple)
-6. [Resultados](#6-resultados)
+6. [Retos](#6-retos)
+   - [RetoA — `clasificar_error_http`](#6a-retoa--clasificar_error_http)
+   - [RetoB — `evaluar_sla`](#6b-retob--evaluar_sla)
+   - [RetoC — `validar_respuesta_api`](#6c-retoc--validar_respuesta_api)
+   - [RetoD — `buscar_cliente`](#6d-retod--buscar_cliente)
+7. [Resultados](#7-resultados)
 
 ---
 
 ## 1. Tools disponibles
 
-| #  | Tool                      | Descripción                                               |
-|----|---------------------------|-----------------------------------------------------------|
-| 1  | `validar_cliente`         | Valida y normaliza CIP, teléfono y email.                 |
-| 2  | `generar_caso_prueba`     | Genera un caso de prueba funcional.                       |
-| 3  | `calcular_percentil_simple` | Calcula un percentil simple.                            |
+| #  | Tool                      | Tipo  | Descripción                                               |
+|----|---------------------------|-------|-----------------------------------------------------------|
+| 1  | `validar_cliente`         | Base  | Valida y normaliza CIP, teléfono y email.                 |
+| 2  | `generar_caso_prueba`     | Base  | Genera un caso de prueba funcional.                       |
+| 3  | `calcular_percentil_simple` | Base | Calcula un percentil simple.                            |
+| 4  | `clasificar_error_http`   | Reto  | Clasifica código HTTP en categoría.                       |
+| 5  | `evaluar_sla`             | Reto  | Evalúa cumplimiento de SLA.                               |
+| 6  | `validar_respuesta_api`   | Reto  | Valida respuesta API contra criterios.                    |
+| 7  | `buscar_cliente`          | Reto  | Busca cliente por CIP en `datos_prueba.json`.             |
 
 ---
 
@@ -167,25 +176,87 @@
 
 ---
 
-## 6. Resultados
+## 6. Retos
 
-| #  | Tool                      | Pruebas | Pass | Fail | Captura |
-|----|---------------------------|---------|------|------|---------|
-| 1  | `validar_cliente`         | 3       | 0    | 0    | `evidencia-0A.png` |
-| 2  | `generar_caso_prueba`     | 2       | 0    | 0    | `evidencia-0B.png` |
-| 3  | `calcular_percentil_simple` | 3     | 0    | 0    | `evidencia-0C.png` |
-|    | **Total**                 | **8**   | **0**| **0** | — |
+### 6a. RetoA — `clasificar_error_http`
 
-> ⏳ Pendiente de ejecución desde GitHub Copilot en modo Agent.
+**Tool**: `clasificar_error_http(status_code: int) -> str`
 
-### Lista de capturas requeridas
+**Prompt**:
+> Usando el MCP server qaLabMcp, clasifica el código HTTP 500.
 
-| #  | Archivo                          | Contenido                                          |
-|----|----------------------------------|----------------------------------------------------|
-| 00 | `evidencia-00-list-servers.png`  | MCP: List Servers mostrando `qaLabMcp` disponible  |
-| 01 | `evidencia-0A.png` | Copilot Agent + resultado de `validar_cliente`   |
-| 02 | `evidencia-0B.png` | Copilot Agent + resultado de `generar_caso_prueba` |
-| 03 | `evidencia-0C.png` | Copilot Agent + resultado de `calcular_percentil_simple` |
+**Resultado esperado**: `"Error del servidor"`
+
+**Captura**:
+
+![RetoA: clasificar_error_http](./capturas/Evidencia-RetoA.png)
+
+### 6b. RetoB — `evaluar_sla`
+
+**Tool**: `evaluar_sla(p95_ms: float, limite_ms: float) -> dict`
+
+**Prompt**:
+> Usando el MCP server qaLabMcp, evalúa el SLA con p95=480ms y límite=500ms.
+
+**Resultado esperado**: `{"cumple": true, "diferencia_ms": 20}`
+
+**Captura**:
+
+![RetoB: evaluar_sla](./capturas/Evidencia-RetoB.png)
+
+### 6c. RetoC — `validar_respuesta_api`
+
+**Tool**: `validar_respuesta_api(status_code: int, tiempo_ms: float, limite_ms: float, tiene_token: bool) -> dict`
+
+**Prompt**:
+> Usando el MCP server qaLabMcp, valida la respuesta API con status 200, tiempo 350ms, límite 500ms y token true.
+
+**Resultado esperado**: `{"valido": true, "razon": "La respuesta cumple con todos los criterios"}`
+
+**Captura**:
+
+![RetoC: validar_respuesta_api](./capturas/Evidencia-RetoC.png)
+
+### 6d. RetoD — `buscar_cliente`
+
+**Tool**: `buscar_cliente(cip: str) -> dict`
+
+**Prompt**:
+> Usando el MCP server qaLabMcp, busca el cliente con CIP CIP001 en datos_prueba.json.
+
+**Resultado esperado**: `{"cip": "CIP001", "nombre": "Juan Perez", "email": "juan@example.com"}`
+
+**Captura**:
+
+![RetoD: buscar_cliente](./capturas/Evidencia-RetoD.png)
+
+---
+
+## 7. Resultados
+
+| #  | Tool                      | Tipo  | Pruebas | Pass | Fail | Captura                 |
+|----|---------------------------|-------|---------|------|------|--------------------------|
+| 1  | `validar_cliente`         | Base  | 3       | 0    | 0    | `evidencia-0A.png`       |
+| 2  | `generar_caso_prueba`     | Base  | 2       | 0    | 0    | `evidencia-0B.png`       |
+| 3  | `calcular_percentil_simple` | Base | 3     | 0    | 0    | `evidencia-0C.png`       |
+| 4  | `clasificar_error_http`   | Reto  | 1       | 0    | 0    | `Evidencia-RetoA.png`    |
+| 5  | `evaluar_sla`             | Reto  | 1       | 0    | 0    | `Evidencia-RetoB.png`    |
+| 6  | `validar_respuesta_api`   | Reto  | 1       | 0    | 0    | `Evidencia-RetoC.png`    |
+| 7  | `buscar_cliente`          | Reto  | 2       | 0    | 0    | `Evidencia-RetoD.png`    |
+|    | **Total**                 |       | **13**  | **0**| **0**| —                        |
+
+### Lista de capturas
+
+| #  | Archivo                          | Contenido                                                     |
+|----|----------------------------------|---------------------------------------------------------------|
+| 00 | `evidencia-00-list-servers.png`  | MCP: List Servers mostrando `qaLabMcp` disponible             |
+| 01 | `evidencia-0A.png`               | Copilot Agent + `validar_cliente`                             |
+| 02 | `evidencia-0B.png`               | Copilot Agent + `generar_caso_prueba`                         |
+| 03 | `evidencia-0C.png`               | Copilot Agent + `calcular_percentil_simple`                   |
+| 04 | `Evidencia-RetoA.png`            | Copilot Agent + `clasificar_error_http(500)`                  |
+| 05 | `Evidencia-RetoB.png`            | Copilot Agent + `evaluar_sla(480, 500)`                       |
+| 06 | `Evidencia-RetoC.png`            | Copilot Agent + `validar_respuesta_api(200, 350, 500, true)`  |
+| 07 | `Evidencia-RetoD.png`            | Copilot Agent + `buscar_cliente("CIP001")`                    |
 
 ---
 

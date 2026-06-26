@@ -1,0 +1,5 @@
+[
+  {"cip": "CIP001", "nombre": "Juan Perez", "email": "juan@example.com"},
+  {"cip": "CIP002", "nombre": "Maria Garcia", "email": "maria@example.com"},
+  {"cip": "CIP003", "nombre": "Carlos Lopez", "email": "carlos@example.com"}
+]
