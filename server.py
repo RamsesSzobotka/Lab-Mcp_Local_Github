@@ -1,80 +1,143 @@
 from fastmcp import FastMCP
-import json
+import re
+import math
 
-mcp = FastMCP("lab-mcp-local")
-
-
-# ── Tools Base ────────────────────────────────────────────────
+mcp = FastMCP("qaLabMcp")
 
 
 @mcp.tool()
-def saludar(nombre: str) -> str:
-    """Saluda a una persona por su nombre."""
-    return f"¡Hola, {nombre}!"
+def validar_cliente(cip: str, telefono: str, email: str) -> dict:
+    """Valida y normaliza datos de un cliente.
+
+    Args:
+        cip: Identificador del cliente (CIP).
+        telefono: Número de teléfono del cliente.
+        email: Correo electrónico del cliente.
+
+    Returns:
+        Diccionario con resultado de validación y datos normalizados.
+    """
+    errores = {}
+    resultado = {}
+
+    # Validar CIP
+    cip = cip.strip() if cip else ""
+    if not cip:
+        errores["cip"] = "El CIP no puede estar vacío"
+    else:
+        resultado["cip"] = cip
+
+    # Validar y normalizar teléfono
+    telefono = telefono.strip() if telefono else ""
+    if not telefono:
+        errores["telefono"] = "El teléfono no puede estar vacío"
+    else:
+        digitos = re.sub(r"\D", "", telefono)
+        if len(digitos) < 8:
+            errores["telefono"] = "El teléfono debe tener al menos 8 dígitos"
+        else:
+            resultado["telefono"] = digitos
+
+    # Validar y normalizar email
+    email = email.strip().lower() if email else ""
+    if not email:
+        errores["email"] = "El email no puede estar vacío"
+    else:
+        patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not re.match(patron, email):
+            errores["email"] = "El email no tiene un formato válido"
+        else:
+            resultado["email"] = email
+
+    if errores:
+        return {"valido": False, "errores": errores}
+
+    return {"valido": True, **resultado}
 
 
 @mcp.tool()
-def sumar(a: int, b: int) -> int:
-    """Suma dos números enteros."""
-    return a + b
+def generar_caso_prueba(endpoint: str, metodo: str, escenario: str) -> dict:
+    """Genera un caso de prueba funcional.
 
+    Args:
+        endpoint: Ruta del endpoint (ej. /api/login).
+        metodo: Método HTTP (GET, POST, PUT, PATCH, DELETE).
+        escenario: Descripción del escenario a probar.
 
-@mcp.tool()
-def contar_palabras(texto: str) -> int:
-    """Cuenta la cantidad de palabras en un texto."""
-    return len(texto.split())
+    Returns:
+        Diccionario con el caso de prueba estructurado.
+    """
+    metodo = metodo.upper().strip()
+    metodos_validos = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
+    if metodo not in metodos_validos:
+        return {
+            "error": f"Método HTTP no válido. Válidos: {', '.join(metodos_validos)}"
+        }
 
-# ── Tools Reto ─────────────────────────────────────────────────
+    if not endpoint or not endpoint.strip():
+        return {"error": "El endpoint no puede estar vacío"}
 
+    if not escenario or not escenario.strip():
+        return {"error": "El escenario no puede estar vacío"}
 
-@mcp.tool()
-def buscar_cliente(id: int) -> dict:
-    """Busca un cliente por su ID en data_prueba.json."""
-    try:
-        with open("data_prueba.json", encoding="utf-8") as f:
-            clientes = json.load(f)
-    except FileNotFoundError:
-        return {"error": "El archivo data_prueba.json no existe"}
-    except json.JSONDecodeError:
-        return {"error": "Error al leer data_prueba.json: formato inválido"}
+    endpoint_limpio = endpoint.strip()
+    escenario_limpio = escenario.strip()
 
-    for cliente in clientes:
-        if cliente["id"] == id:
-            return {"nombre": cliente["nombre"], "email": cliente["email"]}
-
-    return {"error": f"Cliente con id {id} no encontrado"}
-
-
-@mcp.tool()
-def calcular_promedio(calificaciones: list[float]) -> float:
-    """Calcula el promedio de una lista de calificaciones."""
-    if not calificaciones:
-        return 0.0
-    return sum(calificaciones) / len(calificaciones)
-
-
-@mcp.tool()
-def analizar_texto(texto: str) -> dict:
-    """Analiza un texto y retorna cantidad de caracteres, palabras y vocales."""
-    caracteres = len(texto)
-    palabras = len(texto.split())
-    vocales = sum(1 for c in texto.lower() if c in "aeiouáéíóúü")
-    return {
-        "caracteres": caracteres,
-        "palabras": palabras,
-        "vocales": vocales,
+    caso = {
+        "id": f"CP-{metodo}-{abs(hash(endpoint_limpio + escenario_limpio)) % 10000:04d}",
+        "endpoint": endpoint_limpio,
+        "metodo": metodo,
+        "escenario": escenario_limpio,
+        "pasos": [
+            f"Configurar solicitud {metodo} a {endpoint_limpio}",
+            "Establecer headers (Content-Type, Authorization si aplica)",
+            f"Ejecutar la solicitud y capturar la respuesta",
+            "Validar código de estado HTTP",
+            "Validar estructura y contenido del cuerpo de la respuesta",
+        ],
+        "criterio_aceptacion": (
+            "La respuesta debe ser consistente con el escenario descrito"
+        ),
     }
 
+    return caso
+
 
 @mcp.tool()
-def generar_resumen(texto: str, n_oraciones: int = 2) -> str:
-    """Genera un resumen con las primeras n oraciones del texto."""
-    oraciones = [o.strip() for o in texto.split(".") if o.strip()]
-    if not oraciones:
-        return ""
-    resumen = ". ".join(oraciones[:n_oraciones]) + "."
-    return resumen
+def calcular_percentil_simple(valores: list[float], percentil: float) -> float:
+    """Calcula un percentil simple usando interpolación lineal
+    sobre los valores en su orden original (0-indexado).
+
+    Fórmula: posición = (percentil / 100) * (len(valores) - 1)
+    Luego interpola linealmente entre los valores adyacentes.
+
+    Args:
+        valores: Lista de valores numéricos en cualquier orden.
+        percentil: Percentil a calcular (0-100).
+
+    Returns:
+        Valor del percentil calculado.
+    """
+    if not valores:
+        return 0.0
+
+    if percentil < 0 or percentil > 100:
+        raise ValueError("El percentil debe estar entre 0 y 100")
+
+    n = len(valores)
+
+    # Método: posición 0-indexada sobre los valores en su orden original
+    r = (percentil / 100) * (n - 1)
+    k = int(r)
+    delta = r - k
+
+    if k >= n - 1:
+        return float(valores[-1])
+    if k < 0:
+        return float(valores[0])
+
+    return round(float(valores[k] + delta * (valores[k + 1] - valores[k])), 10)
 
 
 if __name__ == "__main__":
