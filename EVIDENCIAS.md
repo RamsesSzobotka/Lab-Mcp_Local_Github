@@ -94,11 +94,11 @@
 
 ### Casos adicionales
 
-| #  | CIP     | Teléfono     | Email               | Resultado esperado                                       | Estado |
-|----|---------|-------------|---------------------|----------------------------------------------------------|--------|
-| 1  | `12345` | `6677-8899` | `prueba@demo.com`   | `{"valido": true, "cip": "12345", "telefono": "66778899", "email": "prueba@demo.com"}` | ⏳ |
-| 2  | `""`    | `1234`      | `invalido`          | `{"valido": false, "errores": {"cip": "...", "telefono": "...", "email": "..."}}` | ⏳ |
-| 3  | `ABC01` | `5555-1234` | `USER@Example.COM`  | `{"valido": true, "cip": "ABC01", "telefono": "55551234", "email": "user@example.com"}` | ⏳ |
+| #  | CIP     | Teléfono     | Email               | Resultado esperado                                       |
+|----|---------|-------------|---------------------|----------------------------------------------------------|
+| 1  | `12345` | `6677-8899` | `prueba@demo.com`   | `{"valido": true, "cip": "12345", "telefono": "66778899", "email": "prueba@demo.com"}` |
+| 2  | `""`    | `1234`      | `invalido`          | `{"valido": false, "errores": {"cip": "...", "telefono": "...", "email": "..."}}` |
+| 3  | `ABC01` | `5555-1234` | `USER@Example.COM`  | `{"valido": true, "cip": "ABC01", "telefono": "55551234", "email": "user@example.com"}` |
 
 ---
 
@@ -136,10 +136,10 @@
 
 ### Casos adicionales
 
-| #  | Endpoint       | Método | Escenario                          | Resultado esperado | Estado |
-|----|---------------|--------|------------------------------------|--------------------|--------|
-| 1  | `/api/login`  | POST   | Credenciales inválidas             | Caso estructurado  | ⏳ |
-| 2  | `/api/users`  | GET    | Listar usuarios sin autenticación  | Caso estructurado  | ⏳ |
+| #  | Endpoint       | Método | Escenario                          | Resultado esperado |
+|----|---------------|--------|------------------------------------|--------------------|
+| 1  | `/api/login`  | POST   | Credenciales inválidas             | Caso estructurado  |
+| 2  | `/api/users`  | GET    | Listar usuarios sin autenticación  | Caso estructurado  |
 
 ---
 
@@ -168,11 +168,11 @@
 
 ### Casos adicionales
 
-| #  | Valores                                              | Percentil | Resultado esperado | Estado |
-|----|------------------------------------------------------|-----------|-------------------|--------|
-| 1  | `[120, 130, 150, 300, 90, 100, 500, 220]`           | 95        | `318.0`           | ⏳ |
-| 2  | `[10, 20, 30, 40, 50]`                               | 50        | `30.0`            | ⏳ |
-| 3  | `[100]`                                              | 50        | `100.0`           | ⏳ |
+| #  | Valores                                              | Percentil | Resultado esperado |
+|----|------------------------------------------------------|-----------|-------------------|
+| 1  | `[120, 130, 150, 300, 90, 100, 500, 220]`           | 95        | `318.0`           |
+| 2  | `[10, 20, 30, 40, 50]`                               | 50        | `30.0`            |
+| 3  | `[100]`                                              | 50        | `100.0`           |
 
 ---
 

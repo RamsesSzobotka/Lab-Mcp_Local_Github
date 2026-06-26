@@ -111,18 +111,9 @@ Una vez que el servidor esté activo, abre GitHub Copilot Chat, cambia a modo **
 
 ---
 
-## Guía rápida para tomar evidencias
+## Evidencias
 
-| #  | Qué capturar                                      | Prompt exacto | Archivo |
-|----|---------------------------------------------------|---------------|---------|
-| 00 | `MCP: List Servers` mostrando `qaLabMcp` activo   | — | `evidencia-00-list-servers.png` |
-| 01 | `validar_cliente`      | "Usando el MCP server qaLabMcp, valida el cliente con CIP 12345, teléfono 6677-8899, correo prueba@demo.com." | `evidencia-0A.png` |
-| 02 | `generar_caso_prueba`  | "Usando el MCP server qaLabMcp, genera un caso de prueba para POST /api/login con credenciales inválidas." | `evidencia-0B.png` |
-| 03 | `calcular_percentil_simple` | "Usando el MCP server qaLabMcp, calcula el percentil 95 de [120, 130, 150, 300, 90, 100, 500, 220]." | `evidencia-0C.png` |
-| 04 | `clasificar_error_http(500)` | "Usando el MCP server qaLabMcp, clasifica el código HTTP 500." | `Evidencia-RetoA.png` |
-| 05 | `evaluar_sla(480, 500)` | "Usando el MCP server qaLabMcp, evalúa el SLA con p95=480ms y límite=500ms." | `Evidencia-RetoB.png` |
-| 06 | `validar_respuesta_api(200, 350, 500, true)` | "Usando el MCP server qaLabMcp, valida la respuesta API con status 200, tiempo 350ms, límite 500ms y token true." | `Evidencia-RetoC.png` |
-| 07 | `buscar_cliente("CIP001")` | "Usando el MCP server qaLabMcp, busca el cliente con CIP CIP001 en datos_prueba.json." | `Evidencia-RetoD.png` |
+Las capturas de cada prueba, los prompts exactos y los resultados obtenidos están documentados en **[EVIDENCIAS.md](./EVIDENCIAS.md)**.
 
 ---
 
